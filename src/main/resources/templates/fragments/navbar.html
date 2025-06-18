@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Navbar</title>
+    </head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" th:href="@{/}">Kehadiran Mahasiswa</a>
+    <div class="collapse navbar-collapse" id="navbarNav"> <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/mahasiswa}">Data Mahasiswa</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/kehadiran}">Data Kehadiran & Grafik</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+</body>
+</html>

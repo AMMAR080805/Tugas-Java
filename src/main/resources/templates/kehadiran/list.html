@@ -1,0 +1,207 @@
+ <!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{layout}">
+<head>
+<meta charset="UTF-8">
+<title>Data Kehadiran & Grafik</title>
+</head>
+<body>
+<div layout:fragment="content">
+<h2>Data Kehadiran Mahasiswa</h2>
+
+    <form th:action="${kehadiran.id == null ? '/kehadiran/add' : '/kehadiran/update/' + kehadiran.id}" method="post" class="mb-4">
+        <input type="hidden" th:field="*{kehadiran.id}" />
+        <div class="form-group">
+            <label for="mahasiswaId">Mahasiswa:</label>
+            <select id="mahasiswaId" name="mahasiswaId" class="form-control" required>
+                <option value="">Pilih Mahasiswa</option>
+                <option th:each="m : ${mahasiswaList}"
+                        th:value="${m.id}"
+                        th:text="${m.nama} + ' (' + ${m.nim} + ')'"
+                        th:selected="${kehadiran.mahasiswa != null and kehadiran.mahasiswa.id == m.id}">
+                </option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="tanggal">Tanggal:</label>
+            <input type="date" id="tanggal" name="tanggal" th:value="${kehadiran.tanggal != null ? kehadiran.tanggal.toString() : ''}" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="statusKehadiran">Status Kehadiran:</label>
+            <select id="statusKehadiran" name="statusKehadiran" class="form-control" required>
+                <option value="">Pilih Status</option>
+                <option th:each="status : ${statusKehadiranOptions}"
+                        th:value="${status}"
+                        th:text="${status}"
+                        th:selected="${kehadiran.statusKehadiran != null and kehadiran.statusKehadiran == status}">
+                </option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary" th:text="${kehadiran.id == null ? 'Tambah Kehadiran' : 'Update Kehadiran'}"></button>
+        <a th:if="${kehadiran.id != null}" th:href="@{/kehadiran}" class="btn btn-secondary ml-2">Batal</a>
+    </form>
+
+    <hr>
+
+    <h3>Daftar Kehadiran</h3>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Mahasiswa</th>
+            <th>NIM</th>
+            <th>Tanggal</th>
+            <th>Status Kehadiran</th>
+            <th>Aksi</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="k : ${kehadiranList}">
+            <td th:text="${k.id}"></td>
+            <td th:text="${k.mahasiswa.nama}"></td>
+            <td th:text="${k.mahasiswa.nim}"></td>
+            <td th:text="${#temporals.format(k.tanggal, 'dd-MM-yyyy')}"></td>
+            <td th:text="${k.statusKehadiran}"></td>
+            <td>
+                <a th:href="@{/kehadiran/edit/{id}(id=${k.id})}" class="btn btn-warning btn-sm">Edit</a>
+                <a th:href="@{/kehadiran/delete/{id}(id=${k.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">Hapus</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h3>Grafik Kehadiran</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Kehadiran Berdasarkan Status</h4>
+            <div class="chart-container">
+                <canvas id="kehadiranByStatusChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h4>Kehadiran Berdasarkan Mahasiswa dan Status</h4>
+            <div class="chart-container">
+                <canvas id="kehadiranByMahasiswaAndStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Perbaikan untuk memastikan objek Map diubah menjadi string JSON yang valid
+        var kehadiranByStatusData = /*[[${kehadiranByStatus}]]*/ {};
+        var kehadiranByMahasiswaAndStatusData = /*[[${kehadiranByMahasiswaAndStatus}]]*/ {};
+
+        // Chart 1: Kehadiran Berdasarkan Status (Pie Chart)
+        var statusLabels = Object.keys(kehadiranByStatusData);
+        var statusCounts = Object.values(kehadiranByStatusData);
+        var statusColors = [
+            'rgba(76, 175, 80, 0.7)',  // Hadir (Green)
+            'rgba(255, 193, 7, 0.7)',  // Tidak Hadir (Amber)
+            'rgba(33, 150, 243, 0.7)', // Izin (Blue)
+            'rgba(244, 67, 54, 0.7)'   // Sakit (Red)
+        ];
+        var statusBorderColors = [
+            'rgba(76, 175, 80, 1)',
+            'rgba(255, 193, 7, 1)',
+            'rgba(33, 150, 243, 1)',
+            'rgba(244, 67, 54, 1)'
+        ];
+
+        var ctx1 = document.getElementById('kehadiranByStatusChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'pie',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusCounts,
+                    backgroundColor: statusColors,
+                    borderColor: statusBorderColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribusi Status Kehadiran'
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Kehadiran Berdasarkan Mahasiswa dan Status (Stacked Bar Chart)
+        var mahasiswaNames = Object.keys(kehadiranByMahasiswaAndStatusData);
+        var datasetMap = {};
+
+        statusLabels.forEach((status, index) => {
+            datasetMap[status] = {
+                label: status,
+                data: [],
+                backgroundColor: statusColors[index],
+                borderColor: statusBorderColors[index],
+                borderWidth: 1,
+                stack: 'Stack 1' // Penting untuk stacked bar chart
+            };
+        });
+
+        mahasiswaNames.forEach(mahasiswaName => {
+            var dataForMahasiswa = kehadiranByMahasiswaAndStatusData[mahasiswaName];
+            statusLabels.forEach(status => {
+                datasetMap[status].data.push(dataForMahasiswa[status] || 0); // Jika tidak ada, anggap 0
+            });
+        });
+
+        var datasetsForChart2 = Object.values(datasetMap);
+
+        var ctx2 = document.getElementById('kehadiranByMahasiswaAndStatusChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: mahasiswaNames,
+                datasets: datasetsForChart2
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Kehadiran per Mahasiswa dan Status'
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Nama Mahasiswa'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Jumlah Kehadiran'
+                        }
+                    }
+                }
+            }
+        });
+        /*]]>*/
+    </script>
+</div>
+</body>
+</html>

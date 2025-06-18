@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Beranda Aplikasi Kehadiran</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="jumbotron text-center">
+        <h1 class="display-4">Selamat Datang di Aplikasi Kehadiran Mahasiswa!</h1>
+        <p class="lead">Kelola data mahasiswa dan catat kehadiran mereka dengan mudah.</p>
+        <hr class="my-4">
+        <p>Pilih salah satu opsi di bawah untuk memulai:</p>
+        <div class="d-flex justify-content-center flex-wrap"> <a class="btn btn-primary btn-lg" th:href="@{/mahasiswa}" role="button">
+                <i class="fas fa-users mr-2"></i> Kelola Data Mahasiswa
+            </a>
+            <a class="btn btn-success btn-lg" th:href="@{/kehadiran}" role="button">
+                <i class="fas fa-clipboard-check mr-2"></i> Kelola Kehadiran & Lihat Grafik
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    Tentang Data Mahasiswa
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Di bagian ini, Anda dapat menambah, melihat, mengedit, dan menghapus data mahasiswa seperti NIM, Nama, dan Jurusan.</p>
+                    <a th:href="@{/mahasiswa}" class="btn btn-sm btn-outline-primary mt-2">Lihat Mahasiswa</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    Tentang Data Kehadiran & Grafik
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Bagian ini memungkinkan Anda untuk mencatat kehadiran mahasiswa per tanggal dan melihat rekapitulasi kehadiran dalam bentuk tabel dan grafik yang interaktif.</p>
+                    <a th:href="@{/kehadiran}" class="btn btn-sm btn-outline-success mt-2">Lihat Kehadiran</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
