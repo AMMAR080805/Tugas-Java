@@ -1,14 +1,14 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{layout}">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
-<meta charset="UTF-8">
-<title>Data Kehadiran & Grafik</title>
+    <meta charset="UTF-8">
+    <title>Data Kehadiran & Grafik</title>
 </head>
 <body>
 <div layout:fragment="content">
-<h2>Data Kehadiran Mahasiswa</h2>
+    <h2>Data Kehadiran Mahasiswa</h2>
 
     <form th:action="${kehadiran.id == null ? '/kehadiran/add' : '/kehadiran/update/' + kehadiran.id}" method="post" class="mb-4">
         <input type="hidden" th:field="*{kehadiran.id}" />
@@ -91,24 +91,24 @@ layout:decorate="~{layout}">
 
     <script th:inline="javascript">
         /*<![CDATA[*/
-        // Perbaikan untuk memastikan objek Map diubah menjadi string JSON yang valid
         var kehadiranByStatusData = /*[[${kehadiranByStatus}]]*/ {};
         var kehadiranByMahasiswaAndStatusData = /*[[${kehadiranByMahasiswaAndStatus}]]*/ {};
 
         // Chart 1: Kehadiran Berdasarkan Status (Pie Chart)
         var statusLabels = Object.keys(kehadiranByStatusData);
         var statusCounts = Object.values(kehadiranByStatusData);
+        // Warna yang lebih menarik untuk grafik
         var statusColors = [
-            'rgba(76, 175, 80, 0.7)',  // Hadir (Green)
-            'rgba(255, 193, 7, 0.7)',  // Tidak Hadir (Amber)
-            'rgba(33, 150, 243, 0.7)', // Izin (Blue)
-            'rgba(244, 67, 54, 0.7)'   // Sakit (Red)
+            'rgba(75, 192, 192, 0.8)', // Hadir (Turquoise)
+            'rgba(255, 159, 64, 0.8)', // Tidak Hadir (Orange)
+            'rgba(54, 162, 235, 0.8)', // Izin (Blue)
+            'rgba(255, 99, 132, 0.8)'  // Sakit (Red)
         ];
         var statusBorderColors = [
-            'rgba(76, 175, 80, 1)',
-            'rgba(255, 193, 7, 1)',
-            'rgba(33, 150, 243, 1)',
-            'rgba(244, 67, 54, 1)'
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 99, 132, 1)'
         ];
 
         var ctx1 = document.getElementById('kehadiranByStatusChart').getContext('2d');
@@ -129,10 +129,19 @@ layout:decorate="~{layout}">
                 plugins: {
                     legend: {
                         position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
                     },
                     title: {
                         display: true,
-                        text: 'Distribusi Status Kehadiran'
+                        text: 'Distribusi Status Kehadiran',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
                     }
                 }
             }
@@ -149,15 +158,8 @@ layout:decorate="~{layout}">
                 backgroundColor: statusColors[index],
                 borderColor: statusBorderColors[index],
                 borderWidth: 1,
-                stack: 'Stack 1' // Penting untuk stacked bar chart
+                stack: 'Stack 1'
             };
-        });
-
-        mahasiswaNames.forEach(mahasiswaName => {
-            var dataForMahasiswa = kehadiranByMahasiswaAndStatusData[mahasiswaName];
-            statusLabels.forEach(status => {
-                datasetMap[status].data.push(dataForMahasiswa[status] || 0); // Jika tidak ada, anggap 0
-            });
         });
 
         var datasetsForChart2 = Object.values(datasetMap);
@@ -175,10 +177,19 @@ layout:decorate="~{layout}">
                 plugins: {
                     legend: {
                         position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
                     },
                     title: {
                         display: true,
-                        text: 'Kehadiran per Mahasiswa dan Status'
+                        text: 'Kehadiran per Mahasiswa dan Status',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
                     }
                 },
                 scales: {
@@ -186,7 +197,10 @@ layout:decorate="~{layout}">
                         stacked: true,
                         title: {
                             display: true,
-                            text: 'Nama Mahasiswa'
+                            text: 'Nama Mahasiswa',
+                            font: {
+                                size: 14
+                            }
                         }
                     },
                     y: {
@@ -194,7 +208,10 @@ layout:decorate="~{layout}">
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Jumlah Kehadiran'
+                            text: 'Jumlah Kehadiran',
+                            font: {
+                                size: 14
+                            }
                         }
                     }
                 }
